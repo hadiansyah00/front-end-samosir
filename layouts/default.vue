@@ -14,18 +14,21 @@ if (menuStore.menus.length === 0) {
   await menuStore.fetchMenus();
 }
 </script>
-
 <template>
   <div class="min-h-screen flex flex-col bg-gray-50">
-    <!-- Navbar -->
+    <Head>
+      <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+      />
+    </Head>
+
     <Navbar />
 
-    <!-- Page Content -->
     <main class="flex-1 mt-[80px]">
       <slot />
     </main>
 
-    <!-- Footer -->
     <AppFooter />
   </div>
 </template>

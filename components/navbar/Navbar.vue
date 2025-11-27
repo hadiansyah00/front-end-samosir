@@ -18,26 +18,22 @@ if (process.client) {
 <template>
   <nav
     :class="[
-      'w-full z-50 transition-all duration-300 border-b-0',
+      'fixed top-0 left-0 w-full z-50 transition-all duration-300',
       isSticky
-        ? 'bg-gradient-to-r from-[#C00000] to-[#8B0000] shadow-md py-2'
-        : 'bg-gradient-to-r from-[#C00000] to-[#8B0000] py-4',
+        ? 'bg-gradient-to-r from-[#C00000] to-[#8B0000] shadow-md h-[70px]'
+        : 'bg-gradient-to-r from-[#C00000] to-[#8B0000] h-[90px]',
     ]"
   >
-    <div class="container mx-auto px-4 flex items-center">
-      <!-- LEFT: LOGO -->
+    <div class="container mx-auto px-4 h-full flex items-center">
       <div class="flex-shrink-0">
         <NavbarLogo :isSticky="isSticky" />
       </div>
 
-      <!-- CENTER: NAVBAR MENU -->
       <div class="hidden md:flex flex-1 justify-center">
         <NavbarDesktop />
       </div>
 
-      <!-- RIGHT: BOOKING BUTTON + MOBILE TOGGLE -->
       <div class="flex items-center gap-4">
-        <!-- BOOKING BUTTON (desktop only) -->
         <NuxtLink
           to="/booking"
           class="hidden md:inline-block bg-white text-[#C00000] font-semibold px-5 py-2 rounded-lg hover:bg-red-100 transition"
@@ -45,12 +41,10 @@ if (process.client) {
           Booking
         </NuxtLink>
 
-        <!-- MOBILE TOGGLE ICON -->
         <NavbarToggle v-model="isOpen" />
       </div>
     </div>
 
-    <!-- MOBILE NAV -->
     <NavbarMobile v-model="isOpen" />
   </nav>
 </template>

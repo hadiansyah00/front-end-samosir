@@ -1,5 +1,7 @@
 <template>
-  <footer class="bg-gray-900 text-gray-300 pt-14 pb-6">
+  <footer
+    class="bg-gradient-to-r from-[#C00000] to-[#8B0000] shadow-md py-2 text-white pt-14 pb-6"
+  >
     <div class="container mx-auto px-4">
       <div class="grid grid-cols-1 md:grid-cols-4 gap-10">
         <!-- LOGO + DESCRIPTION -->
@@ -56,7 +58,6 @@
     </div>
   </footer>
 </template>
-
 <script setup>
 import { useSeoStore } from "~/stores/seoStore";
 
@@ -70,7 +71,7 @@ const frontSettings = computed(() => seoStore.frontSettings || {});
 const buildImg = (path) => {
   if (!path) return null;
 
-  // Sudah URL full
+  // Jika sudah URL full
   if (/^https?:\/\//.test(path)) return path;
 
   return `${config.public.apiUrlBase}/storage/${path}`;
@@ -80,10 +81,44 @@ const buildImg = (path) => {
 const logoMain = computed(() => buildImg(frontSettings.value.logo_main));
 
 // SOCIAL LINKS
-const socialLinks = computed(() => frontSettings.value.social_links || []);
+const socialLinks = computed(() => {
+  const raw = frontSettings.value.social_links;
+  if (!raw) return [];
 
-// FOOTER SECTIONS
-const footerSections = computed(() => frontSettings.value.footer_links || []);
+  try {
+    // Parse JSON jika masih string
+    return typeof raw === "string" ? JSON.parse(raw) : raw;
+  } catch (e) {
+    console.error("❌ ERROR parsing social_links:", e);
+    return [];
+  }
+});
+
+/* -----------------------------------------------------
+   ✅ IMPROVED FOOTER SECTIONS PARSER
+----------------------------------------------------- */
+const footerSections = computed(() => {
+  const raw = frontSettings.value.footer_links;
+
+  if (!raw) return [];
+
+  try {
+    // Parse JSON jika string, atau gunakan langsung jika array
+    const parsed = typeof raw === "string" ? JSON.parse(raw) : raw;
+
+    // Normalisasi text → label
+    return parsed.map((section) => ({
+      title: section.title,
+      links: section.links.map((link) => ({
+        label: link.label || link.text, // fallback dari "text"
+        url: link.url,
+      })),
+    }));
+  } catch (error) {
+    console.error("❌ FOOTER: Gagal parsing footer_links", error);
+    return [];
+  }
+});
 
 /* -----------------------------------------------------
    🔥 DEBUG LOGGING — MUNCUL DI BROWSER CONSOLE
@@ -97,15 +132,9 @@ watch(
     console.log("Logo (raw):", val?.logo_main);
     console.log("Logo (final URL):", logoMain.value);
     console.log("Social Links:", socialLinks.value);
-    console.log("Footer Sections:", footerSections.value);
+    console.log("Footer Sections (final parsed):", footerSections.value);
     console.log("================================");
   },
   { immediate: true, deep: true }
 );
 </script>
-
-<style scoped>
-footer {
-  background: #0e0e0e;
-}
-</style>

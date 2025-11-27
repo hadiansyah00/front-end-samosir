@@ -1,66 +1,75 @@
 <script setup lang="ts">
-const props = defineProps({
-  sliders: { type: Array, default: () => [] },
-});
+const { $Swiper: Swiper, $SwiperSlide: SwiperSlide } = useNuxtApp();
 
-const config = useRuntimeConfig();
-const apiBase = config.public.apiBaseUrl;
+import "swiper/css";
+import "swiper/css/pagination";
+import "swiper/css/autoplay";
 
-// Build full URL dengan perlindungan error
-const fileUrl = (path: unknown) => {
-  if (!path || typeof path !== "string") return "";
-  if (path.startsWith("http")) return path;
-  return `${apiBase}/storage/${path}`;
-};
-
-// Debug (client only agar tidak error di SSR)
-if (process.client) {
-  watch(
-    () => props.sliders,
-    (val) => {
-      console.log("🎨 HERO SLIDER RECEIVED:", JSON.parse(JSON.stringify(val)));
-    },
-    { immediate: true }
-  );
-}
+import { Pagination, Autoplay } from "swiper/modules";
+const props = defineProps<{
+  sliders: Array<{
+    id: number;
+    title?: string;
+    image: string;
+    image_mobile: string;
+  }>;
+}>();
 </script>
 
 <template>
-  <div class="w-full relative overflow-hidden">
-    <!-- Prevent error kalau slider kosong -->
+  <ClientOnly>
     <div
-      v-if="props.sliders.length === 0"
-      class="min-h-[40vh] flex items-center justify-center"
+      class="relative w-full h-[300px] sm:h-[380px] md:h-[500px] lg:h-[600px] overflow-hidden"
     >
-      <div class="text-gray-400">Loading slider...</div>
-    </div>
-
-    <!-- Slider Loop -->
-    <div
-      v-for="(slide, i) in props.sliders"
-      :key="slide?.id ?? i"
-      class="w-full min-h-[70vh] bg-cover bg-center flex items-center justify-center"
-      :style="{
-        backgroundImage: slide?.image ? `url('${fileUrl(slide.image)}')` : '',
-      }"
-    >
-      <div class="bg-black/40 text-white p-8 rounded-xl text-center max-w-xl">
-        <h1 class="text-4xl font-bold mb-2">
-          {{ slide?.title ?? "" }}
-        </h1>
-
-        <p class="text-xl opacity-90">
-          {{ slide?.subtitle ?? "" }}
-        </p>
-
-        <NuxtLink
-          v-if="slide?.link"
-          :to="slide.link"
-          class="inline-block mt-6 bg-white text-red-700 font-bold px-6 py-3 rounded-lg shadow hover:bg-gray-200 transition"
+      <Swiper
+        :modules="[Pagination, Autoplay]"
+        :slides-per-view="1"
+        :loop="true"
+        :autoplay="{ delay: 4000, disableOnInteraction: false }"
+        :pagination="{ clickable: true }"
+        class="w-full h-full"
+      >
+        <SwiperSlide
+          v-for="slide in sliders"
+          :key="slide.id"
+          class="w-full h-full"
         >
-          Kunjungi
-        </NuxtLink>
-      </div>
+          <picture>
+            <source
+              v-if="slide.image_mobile"
+              :srcset="slide.image_mobile"
+              media="(max-width: 768px)"
+            />
+
+            <img
+              :src="slide.image"
+              :alt="slide.title || 'Slider Image'"
+              class="w-full h-full object-cover"
+            />
+          </picture>
+
+          <div
+            v-if="slide.title"
+            class="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/60 to-transparent p-6"
+          >
+            <h2
+              class="text-white text-2xl md:text-4xl font-semibold drop-shadow"
+            >
+              {{ slide.title }}
+            </h2>
+          </div>
+        </SwiperSlide>
+      </Swiper>
     </div>
-  </div>
+  </ClientOnly>
 </template>
+
+<style scoped>
+.swiper-pagination-bullet {
+  background: white !important;
+  opacity: 0.6;
+}
+.swiper-pagination-bullet-active {
+  opacity: 1 !important;
+}
+</style>

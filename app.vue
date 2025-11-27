@@ -1,4 +1,5 @@
 <!-- app.vue -->
+
 <script setup>
 import Navbar from "~/components/navbar/Navbar.vue";
 import AppFooter from "~/components/footer/Footer.vue";

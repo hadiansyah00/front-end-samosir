@@ -3,47 +3,70 @@
 import HeroSlider from "~/components/hero/HeroSlider.vue";
 
 const config = useRuntimeConfig();
-const apiBaseUrl = config.public.apiBaseUrl;
-const apiBase = config.public.apiBase;
-// Fetch API Home
-const { data: homeData } = await useFetch("/api/v1/home?include=sliders", {
-  baseURL: apiBase,
+
+// Base API untuk JSON
+const apiUrl = config.public.apiUrl; // https://apps.samosirtour.id/api/v1
+// Base API untuk gambar
+const imageBaseUrl = config.public.apiUrlBase; // https://apps.samosirtour.id
+
+// --- Typescript Model ---
+interface Slider {
+  id: number;
+  title: string;
+  image: string; // relative image path
+}
+
+interface HomeResponse {
+  data: {
+    sliders: Slider[];
+  };
+}
+
+// --- Fetch Sliders ---
+const {
+  data: homeData,
+  pending,
+  error,
+} = await useFetch<HomeResponse>(`${apiUrl}/home?include=sliders`, {
+  key: "home-sliders",
 });
 
-// Data slider
-const sliders = computed(() => homeData.value?.data?.sliders ?? []);
+// --- Extract sliders ---
+const sliders = computed(() => {
+  const list = homeData.value?.data?.sliders ?? [];
 
-// FIX: Log hanya di client, hindari SSR warning
+  return list.map((item: any) => ({
+    id: item.id,
+    title: item.title,
+    subtitle: item.subtitle,
+    link: item.link,
+
+    // HeroSlider butuh "image" → jadi kita kirim ulang sebagai image
+    image: item.image ? `${imageBaseUrl}/storage/${item.image}` : "",
+
+    // Untuk mobile
+    image_mobile: item.image_mobile
+      ? `${imageBaseUrl}/storage/${item.image_mobile}`
+      : "",
+  }));
+});
+
+// Debug client
 if (process.client) {
   watch(
     () => sliders.value,
-    (val) => {
-      console.log(
-        "🔥 SLIDERS LOADED (client):",
-        JSON.parse(JSON.stringify(val))
-      );
-    },
+    (val) => console.log("🔥 SLIDER DATA:", val),
     { immediate: true }
   );
 }
-
-// SEO
-const seoStore = useSeoStore();
-useHead({
-  title: seoStore.getSetting("meta_title") ?? "Samosir Tour",
-  meta: [
-    {
-      name: "description",
-      content: seoStore.getSetting("meta_description") ?? "",
-    },
-  ],
-});
 </script>
 
 <template>
-  <section class="w-full">
+  <section class="w-full mt-0 pt-0">
     <!-- 🚀 HERO SLIDER -->
-    <HeroSlider :sliders="sliders" />
+    <ClientOnly>
+      <HeroSlider :sliders="sliders" />
+    </ClientOnly>
 
     <!-- ✨ CONTENT SECTION -->
     <div class="container mx-auto px-6 py-16">
