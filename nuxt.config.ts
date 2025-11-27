@@ -1,13 +1,20 @@
 import tailwindcss from "@tailwindcss/vite";
 export default defineNuxtConfig({
   devtools: { enabled: true },
-  css: ['~/assets/css/input.css'],
+  css: ["~/assets/css/input.css", "~/assets/css/transitions.css"],
 
   vite: {
-    plugins: [
-      tailwindcss(),
-    ],
+    plugins: [tailwindcss()],
   },
-
+  modules: ["@pinia/nuxt"],
+  pinia: {
+    autoImports: ["defineStore", "storeToRefs"],
+  },
+  runtimeConfig: {
+    public: {
+      apiUrl: process.env.NUXT_PUBLIC_API_URL,
+      apiUrlBase: process.env.NUXT_PUBLIC_API_URL_BASE,
+    },
+  },
   compatibilityDate: "2025-02-28",
 });
