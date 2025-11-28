@@ -1,7 +1,11 @@
 import tailwindcss from "@tailwindcss/vite";
 export default defineNuxtConfig({
   devtools: { enabled: true },
-  css: ["~/assets/css/input.css", "~/assets/css/transitions.css"],
+  css: [
+    "~/assets/css/input.css",
+    "~/assets/css/transitions.css",
+    "remixicon/fonts/remixicon.css",
+  ],
   image: {
     domains: ["apps.samosirtour.id"],
   },

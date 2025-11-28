@@ -19,7 +19,11 @@ const { menus } = storeToRefs(menuStore);
       <NuxtLink
         v-for="item in menus"
         :key="item.id"
-        :to="item.url || '/' + item.slug"
+        :to="
+          item.slug === 'home' || item.slug === 'beranda'
+            ? '/'
+            : '/' + item.slug
+        "
         class="block font-medium text-white hover:text-blue-600"
         @click="emit('update:modelValue', false)"
       >

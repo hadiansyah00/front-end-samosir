@@ -1,19 +1,21 @@
 <!-- layouts/default.vue -->
-<script setup>
+<script setup lang="ts">
 import Navbar from "~/components/navbar/Navbar.vue";
 import AppFooter from "~/components/footer/Footer.vue";
 
-// Load SEO settings at layout-level (auto once)
 const seoStore = useSeoStore();
-if (!seoStore.frontSettings) {
-  await seoStore.fetchFrontSettings();
-}
-
 const menuStore = useMenuStore();
-if (menuStore.menus.length === 0) {
-  await menuStore.fetchMenus();
-}
+
+/*
+  Load data hanya sekali di layout
+  Nuxt otomatis men-cache setiap navigasi SPA
+*/
+await Promise.all([
+  seoStore.frontSettings ? null : seoStore.fetchFrontSettings(),
+  menuStore.menus.length > 0 ? null : menuStore.fetchMenus(),
+]);
 </script>
+
 <template>
   <div class="min-h-screen flex flex-col bg-gray-50">
     <Head>
@@ -25,14 +27,11 @@ if (menuStore.menus.length === 0) {
 
     <Navbar />
 
-    <main class="flex-1 mt-[80px]">
+    <!-- Pastikan navbar fixed → kasih padding top yang stabil -->
+    <main class="flex-1 pt-[80px]">
       <slot />
     </main>
 
     <AppFooter />
   </div>
 </template>
-
-<style scoped>
-/* Bisa ditinggalkan clean */
-</style>

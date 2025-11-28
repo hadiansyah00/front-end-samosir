@@ -19,5 +19,10 @@ if (menuStore.menus.length === 0) {
 <template>
   <NuxtLayout>
     <NuxtPage />
+    <FloatingButtons />
   </NuxtLayout>
 </template>
+<!-- Tambahkan di bawah -->
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700;800;900&display=swap");
+</style>

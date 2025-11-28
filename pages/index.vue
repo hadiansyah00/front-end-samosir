@@ -1,78 +1,92 @@
-<!-- pages/index.vue -->
 <script setup lang="ts">
 import HeroSlider from "~/components/hero/HeroSlider.vue";
 import AboutSection from "~/components/sections/AboutSection.vue";
 import KeunggulanSection from "~/components/sections/KeunggulanSection.vue";
+import FleetSection from "~/components/sections/FleetSection.vue";
+import AlasanSection from "~/components/sections/AlasanKami.vue";
+import TestimonialSection from "~/components/sections/TestimonialSection.vue";
 
 const config = useRuntimeConfig();
-
 const apiUrl = config.public.apiUrl;
 const imageBaseUrl = config.public.apiUrlBase;
 
-// ===== Models =====
-interface Slider {
-  id: number;
-  title: string;
-  subtitle?: string;
-  link?: string;
-  image: string;
-  image_mobile?: string;
-}
-
-interface About {
-  id: number;
-  title: string;
-  subtitle?: string;
-  description: string;
-  image: string;
-}
-
-interface Keunggulan {
-  judul: string;
-  icode: string;
-  deskripsi: string;
-}
-
-// ===== Single Fetch Home API =====
-const { data: homeData } = await useFetch(
-  `${apiUrl}/home?include=sliders,abouts,keunggulanKami`,
-  {
-    key: "home",
-  }
+// =======================
+// FETCH DATA MENGGUNAKAN useAsyncData (lebih stabil dari useFetch)
+// =======================
+const { data: home, refresh } = await useAsyncData("home-page", () =>
+  $fetch(
+    `${apiUrl}/home?include=sliders,abouts,keunggulanKami,cars,alasans,testimonials`
+  )
 );
 
-// ===== Sliders =====
-const sliders = computed<Slider[]>(() => {
-  return (homeData.value?.data?.sliders ?? []).map((item: any) => ({
+// force refresh setiap page dibuka kembali
+onActivated(() => refresh());
+
+// ====================================================
+// ========  NORMALISASI DATA — CLEAN & RAPIH  ========
+// ====================================================
+
+// HERO SLIDERS
+const sliders = computed(() =>
+  (home.value?.data?.sliders || []).map((item: any) => ({
     id: item.id,
     title: item.title,
     subtitle: item.subtitle,
     link: item.link,
-    image: `${imageBaseUrl}/storage/${item.image}`,
+    image: item.image ? `${imageBaseUrl}/storage/${item.image}` : "",
     image_mobile: item.image_mobile
       ? `${imageBaseUrl}/storage/${item.image_mobile}`
       : "",
-  }));
+  }))
+);
+
+// ABOUT SECTION
+const about = computed(() => {
+  const a = home.value?.data?.abouts?.[0];
+  return a
+    ? {
+        id: a.id,
+        title: a.title,
+        subtitle: a.subtitle,
+        description: a.description,
+        image: `${imageBaseUrl}/storage/${a.image}`,
+      }
+    : null;
 });
 
-// ===== About =====
-const about = computed<About | null>(() => {
-  const item = homeData.value?.data?.abouts?.[0];
-  if (!item) return null;
+// KEUNGGULAN
+const keunggulanKami = computed(() => home.value?.data?.keunggulanKami || []);
 
-  return {
+// ALASAN KAMI
+const alasans = computed(() => home.value?.data?.alasans || []);
+
+// CARS
+const cars = computed(() =>
+  (home.value?.data?.cars || []).map((c: any) => ({
+    id: c.id,
+    name: c.name,
+    capacity: c.capacity,
+    price_per_day: c.price_per_day,
+    description: c.description,
+    cta_whatsapp: c.cta_whatsapp,
+    image: c.image
+      ? `${imageBaseUrl}/storage/${c.image}`
+      : `${imageBaseUrl}/placeholder/car-default.png`,
+  }))
+);
+
+// TESTIMONIALS
+const testimonials = computed(() =>
+  (home.value?.data?.testimonials || []).map((item: any) => ({
     id: item.id,
-    title: item.title,
-    subtitle: item.subtitle,
-    description: item.description,
-    image: `${imageBaseUrl}/storage/${item.image}`,
-  };
-});
-
-// ===== Keunggulan Kami =====
-const keunggulanKami = computed<Keunggulan[]>(() => {
-  return homeData.value?.data?.keunggulanKami ?? [];
-});
+    name: item.name,
+    role: item.role,
+    message: item.message,
+    photo: item.photo
+      ? `${imageBaseUrl}/storage/${item.photo}`
+      : "/placeholder-user.png",
+  }))
+);
 </script>
 
 <template>
@@ -82,10 +96,19 @@ const keunggulanKami = computed<Keunggulan[]>(() => {
       <HeroSlider :sliders="sliders" />
     </ClientOnly>
 
-    <!-- ⭐ ABOUT SECTION -->
+    <!-- ⭐ ABOUT -->
     <AboutSection :about="about" />
 
-    <!-- ⭐ KEUNGGULAN KAMI -->
+    <!-- ⭐ KEUNGGULAN -->
     <KeunggulanSection :items="keunggulanKami" />
+
+    <!-- ⭐ ALASAN -->
+    <AlasanSection :alasans="alasans" />
+
+    <!-- ⭐ DAFTAR MOBIL -->
+    <FleetSection :cars="cars" />
+
+    <!-- ⭐ TESTIMONIAL -->
+    <TestimonialSection :testimonials="testimonials" />
   </section>
 </template>

@@ -1,6 +1,52 @@
+/* =========================================
+   TAILWIND + NUNITO + FLOWBITE CONFIG
+========================================= */
+
+/* Tailwind CSS core */
 @import "tailwindcss";
 
+/* Google Fonts */
+@import url("https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap");
+
+/* Flowbite Theme */
 @import "flowbite/src/themes/default";
+
+/* Flowbite Plugins */
 @plugin "flowbite/plugin";
+
+/* Flowbite Sources */
 @source "../../node_modules/flowbite";
 @source "../../node_modules/flowbite-datepicker";
+
+/* =========================================
+   GLOBAL TYPOGRAPHY OVERRIDE
+========================================= */
+
+@layer base {
+  html {
+    font-family: "Nunito", sans-serif;
+  }
+
+  h1 {
+    @apply text-4xl md:text-5xl font-bold leading-tight;
+  }
+
+  h2 {
+    @apply text-3xl md:text-4xl font-bold leading-snug;
+  }
+
+  h3 {
+    @apply text-2xl font-semibold;
+  }
+
+  p {
+    @apply leading-relaxed text-gray-700;
+  }
+}
+
+/* Optional Custom Utility (Nunito class) */
+@layer utilities {
+  .font-nunito {
+    font-family: "Nunito", sans-serif;
+  }
+}
