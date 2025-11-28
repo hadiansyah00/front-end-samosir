@@ -8,7 +8,7 @@
         <div>
           <img v-if="logoMain" :src="logoMain" alt="Logo" class="h-14 mb-5" />
 
-          <p class="text-gray-400 leading-relaxed">
+          <p class="text-white leading-relaxed">
             {{
               frontSettings?.footer_description ||
               "Website resmi kami dengan pelayanan terbaik."
@@ -23,7 +23,7 @@
               :href="soc.url"
               target="_blank"
               rel="noopener"
-              class="w-10 h-10 rounded-full bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition"
+              class="w-10 h-10 rounded-full bg-red-700 hover:bg-red-600 flex items-center justify-center transition"
             >
               <i :class="soc.icon" class="text-lg"></i>
             </a>
@@ -40,7 +40,7 @@
             <li v-for="link in section.links" :key="link.label">
               <NuxtLink
                 :to="link.url"
-                class="text-gray-400 hover:text-white transition"
+                class="text-white hover:text-gray-300 transition"
               >
                 {{ link.label }}
               </NuxtLink>
@@ -51,7 +51,7 @@
 
       <!-- COPYRIGHT -->
       <div
-        class="border-t border-gray-700 mt-12 pt-6 text-center text-gray-500 text-sm"
+        class="border-t border-white mt-12 pt-6 text-center text-white text-sm"
       >
         {{ frontSettings?.copyright_text || "© 2025 - All Rights Reserved" }}
       </div>
