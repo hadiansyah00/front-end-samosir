@@ -1,9 +1,7 @@
 import NProgress from "nprogress";
-import "~/assets/css/nprogress.css";
+import "nprogress/nprogress.css";
 
 export default defineNuxtPlugin((nuxtApp) => {
-  NProgress.configure({ showSpinner: false });
-
   nuxtApp.hook("page:start", () => {
     NProgress.start();
   });
