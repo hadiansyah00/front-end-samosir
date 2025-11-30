@@ -18,13 +18,19 @@ const props = defineProps<{
 
 // Format image
 const formattedCars = computed(() =>
-  props.cars.map((car) => ({
-    ...car,
-    img:
-      car.image !== null
-        ? `${props.imageBaseUrl}/storage/${car.image}`
-        : "/placeholder-car.png",
-  }))
+  props.cars.map((car) => {
+    const isFullUrl = car.image?.startsWith("http");
+
+    return {
+      ...car,
+      img:
+        car.image !== null
+          ? isFullUrl
+            ? car.image // FULL URL → langsung pakai
+            : `${props.imageBaseUrl}/storage/${car.image}` // hanya filename → prefix base URL
+          : "/placeholder-car.png",
+    };
+  })
 );
 
 // === Load More ===
