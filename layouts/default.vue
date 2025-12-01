@@ -1,4 +1,5 @@
 <!-- layouts/default.vue -->
+<!-- layouts/default.vue -->
 <script setup lang="ts">
 import Navbar from "~/components/navbar/Navbar.vue";
 import AppFooter from "~/components/footer/Footer.vue";
@@ -6,14 +7,50 @@ import AppFooter from "~/components/footer/Footer.vue";
 const seoStore = useSeoStore();
 const menuStore = useMenuStore();
 
-/*
-  Load data hanya sekali di layout
-  Nuxt otomatis men-cache setiap navigasi SPA
-*/
-await Promise.all([
-  seoStore.frontSettings ? null : seoStore.fetchFrontSettings(),
-  menuStore.menus.length > 0 ? null : menuStore.fetchMenus(),
-]);
+// Fetch SEO once (SSR)
+await useAsyncData("seo-settings", () => {
+  if (!seoStore.frontSettings) {
+    return seoStore.fetchFrontSettings();
+  }
+});
+
+// Fetch menus
+await useAsyncData("menus-data", () => {
+  if (menuStore.menus.length === 0) {
+    return menuStore.fetchMenus();
+  }
+});
+
+// ===========================
+// ⭐ APPLY SEO TO <HEAD> HERE
+// ===========================
+useHead({
+  title: seoStore.frontSettings?.meta_title,
+  meta: [
+    {
+      name: "description",
+      content: seoStore.frontSettings?.meta_description,
+    },
+    {
+      name: "keywords",
+      content: seoStore.frontSettings?.meta_keywords,
+    },
+    {
+      property: "og:title",
+      content: seoStore.frontSettings?.meta_title,
+    },
+    {
+      property: "og:description",
+      content: seoStore.frontSettings?.meta_description,
+    },
+    {
+      property: "og:image",
+      content: seoStore.frontSettings?.og_image
+        ? seoStore.frontSettings.og_image
+        : "",
+    },
+  ],
+});
 </script>
 
 <template>
@@ -27,7 +64,6 @@ await Promise.all([
 
     <Navbar />
 
-    <!-- Pastikan navbar fixed → kasih padding top yang stabil -->
     <main class="flex-1 pt-[80px]">
       <slot />
     </main>
