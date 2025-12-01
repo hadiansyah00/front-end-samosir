@@ -125,13 +125,15 @@ onMounted(() => {
               {{ about?.title ?? "Tentang Kami" }}
             </h1>
 
-            <p class="mt-4 text-sm md:text-base max-w-2xl opacity-90">
+            <p
+              class="mt-4 text-sm md:text-base text-white max-w-2xl opacity-90"
+            >
               {{ descriptionParagraphs[0] ?? "" }}
             </p>
 
             <div class="mt-6 flex gap-3">
               <a
-                :href="`https://wa.me/62`"
+                :href="`https://wa.me/628136000576`"
                 class="inline-flex items-center gap-2 rounded-full px-5 py-3 font-medium shadow-lg bg-gradient-to-r from-[#C00000] to-[#8B0000]"
                 data-aos="zoom-in"
               >

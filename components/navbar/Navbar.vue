@@ -39,8 +39,9 @@ if (process.client) {
       <div class="flex items-center gap-4 ml-auto">
         <!-- Booking Desktop -->
         <NuxtLink
-          to="/booking"
+          to="https://wa.me/628136000576"
           class="hidden md:flex items-center gap-2 bg-white text-[#C00000] font-semibold px-5 py-2 rounded-xl shadow-sm hover:bg-red-100 transition-all"
+          target="_blank"
         >
           <i class="ri-calendar-check-line text-lg"></i>
           Booking

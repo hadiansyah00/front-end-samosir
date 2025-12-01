@@ -8,7 +8,7 @@ const scrollToTop = () => {
   <div class="fixed bottom-6 right-6 z-[999] flex flex-col gap-4">
     <!-- WhatsApp Button -->
     <a
-      href="https://wa.me/628xxxxxx?text=Halo%20Samosir%20Tour%2C%20saya%20ingin%20bertanya"
+      href="https://wa.me/628136000576?text=Halo%20Samosir%20Tour%2C%20saya%20ingin%20bertanya"
       target="_blank"
       class="w-14 h-14 rounded-full bg-green-500 shadow-lg flex items-center justify-center text-white text-3xl hover:bg-green-600 transition"
     >
