@@ -7,22 +7,13 @@ const seoStore = useSeoStore();
 const menuStore = useMenuStore();
 
 /*
-  Load data SSR-safe
-  - useAsyncData TIDAK membuat error Nitro
-  - data dicache otomatis di SSR & client
-  - SPA navigate tidak memanggil ulang
+  Load data hanya sekali di layout
+  Nuxt otomatis men-cache setiap navigasi SPA
 */
-await useAsyncData("seo-settings", () => {
-  if (!seoStore.frontSettings) {
-    return seoStore.fetchFrontSettings();
-  }
-});
-
-await useAsyncData("menus-data", () => {
-  if (menuStore.menus.length === 0) {
-    return menuStore.fetchMenus();
-  }
-});
+await Promise.all([
+  seoStore.frontSettings ? null : seoStore.fetchFrontSettings(),
+  menuStore.menus.length > 0 ? null : menuStore.fetchMenus(),
+]);
 </script>
 
 <template>
@@ -36,6 +27,7 @@ await useAsyncData("menus-data", () => {
 
     <Navbar />
 
+    <!-- Pastikan navbar fixed → kasih padding top yang stabil -->
     <main class="flex-1 pt-[80px]">
       <slot />
     </main>
