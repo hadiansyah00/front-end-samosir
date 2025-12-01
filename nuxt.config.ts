@@ -18,7 +18,10 @@ export default defineNuxtConfig({
     plugins: [tailwindcss()],
   },
 
-  modules: ["@pinia/nuxt", "@nuxtjs/sitemap"],
+  modules: [
+    "@pinia/nuxt",
+    "nuxt-simple-sitemap", // ✅ MODULE YANG BENAR
+  ],
 
   pinia: {
     autoImports: ["defineStore", "storeToRefs"],
@@ -31,12 +34,15 @@ export default defineNuxtConfig({
     },
   },
 
+  // ==============================================
+  //  🚀 SITEMAP PROPER CONFIG FOR NUXT 3.15
+  // ==============================================
   sitemap: {
-    hostname: "https://samosirtour.id",
+    siteUrl: "https://samosirtour.id",
 
-    // STATIC PAGES
+    // Static pages
     urls: [
-      "/", // Homepage
+      "/",
       "/tentang-kami",
       "/daftar-mobil-dan-harga",
       "/paket-wisata-samosir",
@@ -44,49 +50,45 @@ export default defineNuxtConfig({
       "/artikel",
     ],
 
-    // DYNAMIC ROUTES
-    routes: async () => {
-      const dynamicRoutes = [];
+    // Dynamic routes
+    autoLastmod: true,
+  },
 
-      // ======================
-      // 1. TOUR PACKAGES
-      // ======================
-      try {
-        const packages = await fetch(
-          "https://samosirtour.id/api/v1/packages"
-        ).then((r) => r.json());
+  // Generate dynamic URLs using server route
+  nitro: {
+    hooks: {
+      "sitemap:resolved": async (ctx) => {
+        // TOUR PACKAGES ======================
+        try {
+          const pkg = await $fetch("https://samosirtour.id/api/v1/packages");
 
-        if (Array.isArray(packages)) {
-          packages.forEach((p) => {
-            if (p.slug) {
-              dynamicRoutes.push(`/tour-packages/${p.slug}`);
+          if (Array.isArray(pkg)) {
+            pkg.forEach((p) => {
+              if (p.slug) {
+                ctx.urls.push(`/tour-packages/${p.slug}`);
+              }
+            });
+          }
+        } catch (e) {
+          console.error("Gagal fetch packages", e);
+        }
+
+        // ARTIKEL ============================
+        try {
+          const res = await $fetch(
+            "https://apps.samosirtour.id/api/v1/articles"
+          );
+          const articles = res?.data?.articles ?? [];
+
+          articles.forEach((a) => {
+            if (a.slug) {
+              ctx.urls.push(`/artikel/${a.slug}`);
             }
           });
+        } catch (e) {
+          console.error("Gagal fetch artikel", e);
         }
-      } catch (e) {
-        console.error("Gagal fetch packages:", e);
-      }
-
-      // ======================
-      // 2. ARTIKEL
-      // ======================
-      try {
-        const artikelData = await fetch(
-          "https://apps.samosirtour.id/api/v1/articles"
-        ).then((r) => r.json());
-
-        const articles = artikelData?.data?.articles || [];
-
-        articles.forEach((a) => {
-          if (a.slug) {
-            dynamicRoutes.push(`/artikel/${a.slug}`);
-          }
-        });
-      } catch (e) {
-        console.error("Gagal fetch artikel:", e);
-      }
-
-      return dynamicRoutes;
+      },
     },
   },
 
