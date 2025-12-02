@@ -5,6 +5,7 @@ import KeunggulanSection from "~/components/sections/KeunggulanSection.vue";
 import FleetSection from "~/components/sections/FleetSection.vue";
 import AlasanSection from "~/components/sections/AlasanKami.vue";
 import TestimonialSection from "~/components/sections/TestimonialSection.vue";
+import FaqSection from "~/components/sections/FaqSection.vue";
 
 const config = useRuntimeConfig();
 const apiUrl = config.public.apiUrl;
@@ -15,7 +16,7 @@ const imageBaseUrl = config.public.apiUrlBase;
 // =======================
 const { data: home, refresh } = await useAsyncData("home-page", () =>
   $fetch(
-    `${apiUrl}/home?include=sliders,abouts,keunggulanKami,cars,alasans,testimonials`
+    `${apiUrl}/home?include=sliders,abouts,keunggulanKami,cars,alasans,testimonials,faqs`
   )
 );
 
@@ -87,6 +88,22 @@ const testimonials = computed(() =>
       : "/placeholder-user.png",
   }))
 );
+const faqs = computed(() => {
+  const raw =
+    home.value?.data?.faqs ||
+    home.value?.data?.faq ||
+    home.value?.data?.FAQ ||
+    home.value?.data?.faqKami ||
+    [];
+
+  return raw
+    .filter((item: any) => item.is_active === 1)
+    .map((item: any) => ({
+      id: item.id,
+      question: item.question,
+      answer: item.answer,
+    }));
+});
 </script>
 
 <template>
@@ -110,5 +127,8 @@ const testimonials = computed(() =>
 
     <!-- ⭐ TESTIMONIAL -->
     <TestimonialSection :testimonials="testimonials" />
+
+    <!-- ⭐ FAQS -->
+    <FaqSection :items="faqs" />
   </section>
 </template>

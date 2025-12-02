@@ -67,18 +67,47 @@ const showMore = () => {
           />
 
           <h3 class="text-xl font-bold mb-1">{{ car.name }}</h3>
-          <p class="text-gray-500 text-sm mb-2">{{ car.capacity }}</p>
-          <p class="text-gray-600 text-sm mb-4">{{ car.description }}</p>
+          <!-- <p class="text-gray-500 text-sm mb-2">{{ car.capacity }}</p>
+          <p class="text-gray-600 text-sm mb-4 line-clamp-2">
+            {{ car.description }}
+          </p> -->
 
-          <p class="text-lg font-bold text-red-600 mb-4">
+          <div
+            class="flex justify-between items-center bg-gray-50 rounded-lg p-3 mb-4"
+          >
+            <div class="flex flex-col items-center gap-1">
+              <i class="ri-roadster-fill text-red-600 text-xl"></i>
+              <span class="text-[10px] font-medium text-gray-700">All in</span>
+            </div>
+
+            <div class="w-[1px] h-6 bg-gray-200"></div>
+
+            <div class="flex flex-col items-center gap-1">
+              <i class="ri-key-2-fill text-red-600 text-xl"></i>
+              <span class="text-[10px] font-medium text-gray-700"
+                >Lepas Kunci</span
+              >
+            </div>
+
+            <div class="w-[1px] h-6 bg-gray-200"></div>
+
+            <div class="flex flex-col items-center gap-1">
+              <i class="ri-group-fill text-red-600 text-xl"></i>
+              <span class="text-[10px] font-medium text-gray-700"
+                >Plus Driver</span
+              >
+            </div>
+          </div>
+          <!-- <p class="text-lg font-bold text-red-600 mb-4">
             Rp {{ car.price_per_day.toLocaleString() }} / hari
-          </p>
+          </p> -->
 
           <a
             :href="car.cta_whatsapp"
             target="_blank"
-            class="mt-auto bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg text-center font-semibold"
+            class="mt-auto bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg text-center font-semibold flex items-center justify-center gap-2"
           >
+            <i class="ri-whatsapp-line"></i>
             Booking Sekarang
           </a>
         </div>

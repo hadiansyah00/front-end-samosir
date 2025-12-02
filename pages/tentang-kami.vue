@@ -280,7 +280,7 @@ onMounted(() => {
             <!-- CTA small -->
             <div class="mt-8 flex flex-wrap gap-3" data-aos="fade-up">
               <a
-                :href="`https://wa.me/62`"
+                :href="`https://wa.me/628136000576`"
                 class="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium shadow bg-gradient-to-r from-[#C00000] to-[#8B0000] text-white"
               >
                 <i class="ri-whatsapp-line"></i>
@@ -288,7 +288,7 @@ onMounted(() => {
               </a>
 
               <NuxtLink
-                to="/paket"
+                to="/paket-wisata-samosir"
                 class="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium bg-gray-100 text-gray-800"
               >
                 <i class="ri-briefcase-line"></i>
@@ -310,13 +310,13 @@ onMounted(() => {
           <h3 class="text-xl md:text-2xl font-bold">
             Siap menjelajahi Samosir?
           </h3>
-          <p class="mt-1 text-sm md:text-base opacity-90">
+          <p class="mt-1 text-sm md:text-base text-white opacity-90">
             Hubungi kami sekarang untuk paket tour yang sesuai kebutuhanmu.
           </p>
         </div>
         <div class="flex items-center gap-3">
           <a
-            :href="`https://wa.me/62`"
+            :href="`https://wa.me/628136000576`"
             class="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-white text-gray-900 font-semibold"
             data-aos="fade-left"
           >

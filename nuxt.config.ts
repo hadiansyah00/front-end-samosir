@@ -3,7 +3,9 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineNuxtConfig({
   devtools: { enabled: true },
 
+  // ========================================================
   // GLOBAL CSS
+  // ========================================================
   css: [
     "~/assets/css/input.css",
     "~/assets/css/transitions.css",
@@ -11,7 +13,9 @@ export default defineNuxtConfig({
     "~/assets/css/nprogress.css",
   ],
 
-  // ALLOWED IMAGES
+  // ========================================================
+  // IMAGE DOMAINS
+  // ========================================================
   image: {
     domains: ["apps.samosirtour.id"],
   },
@@ -20,35 +24,48 @@ export default defineNuxtConfig({
     plugins: [tailwindcss()],
   },
 
+  // ========================================================
   // MODULES
+  // ========================================================
   modules: ["@pinia/nuxt", "nuxt-simple-sitemap"],
 
   pinia: {
     autoImports: ["defineStore", "storeToRefs"],
   },
 
-  // ==============================================
-  // 🔐 RUNTIME CONFIG (AMAN UNTUK GA & MAPS)
-  // ==============================================
+  // ========================================================
+  // 🔐 RUNTIME CONFIG — aman untuk public keys
+  // ========================================================
   runtimeConfig: {
     public: {
       apiUrl: process.env.NUXT_PUBLIC_API_URL,
       apiUrlBase: process.env.NUXT_PUBLIC_API_URL_BASE,
 
-      // Google Analytics ID
-      gaId: "G-27F5TW7S6G",
-
-      // Google Maps API Key
-      googleMapsKey: "AIzaSyXXXXX-xxxxxxxxxxxxxxxxxxxx",
+      gaId: process.env.NUXT_PUBLIC_GA_ID, // G-27F5TW7S6G
+      googleMapsKey: process.env.NUXT_PUBLIC_GOOGLE_MAPS_KEY,
     },
   },
 
-  // ==============================================
-  // 🌐 DEFAULT META & OG IMAGE
-  // ==============================================
+  // ========================================================
+  // 🌐 DEFAULT META (SEO + OG)
+  // ========================================================
   app: {
     head: {
       title: "Samosir Tour – Rental Mobil & Paket Wisata Samosir",
+      htmlAttrs: { lang: "id" },
+
+      link: [
+        { rel: "canonical", href: "https://samosirtour.id" },
+
+        // Performance Preconnect
+        {
+          rel: "preconnect",
+          href: "https://fonts.gstatic.com",
+          crossorigin: "",
+        },
+        { rel: "preconnect", href: "https://www.googletagmanager.com" },
+        { rel: "preconnect", href: "https://www.google-analytics.com" },
+      ],
 
       meta: [
         {
@@ -58,6 +75,7 @@ export default defineNuxtConfig({
         },
 
         // OG TAGS
+        { property: "og:site_name", content: "Samosir Tour" },
         { property: "og:title", content: "Samosir Tour" },
         {
           property: "og:description",
@@ -66,12 +84,12 @@ export default defineNuxtConfig({
         },
         {
           property: "og:image",
-          content: "https://samosirtour.id/logo_samosir.png", // 🔥 buat file ini di /public
+          content: "https://samosirtour.id/logo_samosir.png",
         },
         { property: "og:type", content: "website" },
         { property: "og:url", content: "https://samosirtour.id" },
 
-        // TWITTER CARD
+        // TWITTER
         { name: "twitter:card", content: "summary_large_image" },
         { name: "twitter:title", content: "Samosir Tour" },
         {
@@ -85,12 +103,13 @@ export default defineNuxtConfig({
         },
       ],
 
-      // ==============================================
-      // 📊 GOOGLE ANALYTICS (gtag)
-      // ==============================================
+      // ========================================================
+      // 📊 GOOGLE ANALYTICS (Auto Inject)
+      // ========================================================
       script: [
+        // GA TAG
         {
-          src: "https://www.googletagmanager.com/gtag/js?id=G-27F5TW7S6G",
+          src: `https://www.googletagmanager.com/gtag/js?id=${process.env.NUXT_PUBLIC_GA_ID}`,
           async: true,
         },
         {
@@ -98,17 +117,13 @@ export default defineNuxtConfig({
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-            gtag('config', 'G-27F5TW7S6G', { send_page_view: true });
+            gtag('config', '${process.env.NUXT_PUBLIC_GA_ID}', { send_page_view: true });
           `,
         },
 
-        // ==============================================
-        // 🗺 GOOGLE MAPS JAVASCRIPT API
-        // ==============================================
+        // GOOGLE MAPS
         {
-          src: `https://maps.googleapis.com/maps/api/js?key=${
-            process.env.GOOGLE_MAPS_API_KEY || "AIzaSyXXXXX"
-          }&libraries=places`,
+          src: `https://maps.googleapis.com/maps/api/js?key=${process.env.NUXT_PUBLIC_GOOGLE_MAPS_KEY}&libraries=places`,
           async: true,
           defer: true,
         },
@@ -116,11 +131,13 @@ export default defineNuxtConfig({
     },
   },
 
-  // ==============================================
-  // 🗺 SITEMAP CONFIG
-  // ==============================================
+  // ========================================================
+  // 🗺 SITEMAP
+  // ========================================================
   sitemap: {
     siteUrl: "https://samosirtour.id",
+    autoLastmod: true,
+    xsl: false,
     urls: [
       "/",
       "/tentang-kami",
@@ -129,31 +146,30 @@ export default defineNuxtConfig({
       "/galleri",
       "/artikel",
     ],
-    autoLastmod: true,
   },
 
-  // ==============================================
-  // 📡 FETCH DINAMIS UNTUK SITEMAP
-  // ==============================================
+  // ========================================================
+  // 📡 DYNAMIC SITEMAP (Packages + Articles)
+  // ========================================================
   nitro: {
     hooks: {
       "sitemap:resolved": async (ctx) => {
         // PACKAGES
         try {
-          const pkg = await $fetch("https://samosirtour.id/api/v1/packages");
-          pkg?.forEach((p) => {
+          const res = await $fetch("https://samosirtour.id/api/v1/packages");
+          res?.forEach((p) => {
             if (p.slug) ctx.urls.push(`/tour-packages/${p.slug}`);
           });
         } catch (e) {
           console.error("Gagal fetch packages", e);
         }
 
-        // ARTIKEL
+        // ARTICLES
         try {
-          const res = await $fetch(
+          const articleRes = await $fetch(
             "https://apps.samosirtour.id/api/v1/articles"
           );
-          const articles = res?.data?.articles ?? [];
+          const articles = articleRes?.data?.articles ?? [];
           articles.forEach((a) => {
             if (a.slug) ctx.urls.push(`/artikel/${a.slug}`);
           });

@@ -10,8 +10,8 @@
 
           <p class="text-white leading-relaxed">
             {{
-              frontSettings?.footer_description ||
-              "Website resmi kami dengan pelayanan terbaik."
+              frontSettings?.meta_description ||
+              "Jasa Rental Mobil & Paket Wisata Samosir Sewa mobil + driver, tour guide, paket wisata, antar–jemput bandara/pelabuhan/hotel"
             }}
           </p>
 

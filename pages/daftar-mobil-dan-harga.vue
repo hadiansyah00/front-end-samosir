@@ -84,10 +84,9 @@
         <div
           v-for="car in cars"
           :key="car.id"
-          class="bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-all overflow-hidden"
+          class="bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-all overflow-hidden flex flex-col"
           data-aos="fade-up"
         >
-          <!-- IMAGE -->
           <div class="h-48 bg-gray-100 relative">
             <img
               v-if="car.image"
@@ -96,8 +95,6 @@
               class="w-full h-full object-cover"
               loading="lazy"
             />
-
-            <!-- fallback -->
             <div
               v-else
               class="flex items-center justify-center w-full h-full text-gray-400 text-6xl"
@@ -106,27 +103,63 @@
             </div>
           </div>
 
-          <!-- CONTENT -->
-          <div class="p-6">
+          <div class="p-6 flex flex-col flex-grow">
             <h3 class="text-xl font-semibold text-gray-900">{{ car.name }}</h3>
 
             <div class="flex items-center gap-2 mt-1 text-sm text-gray-500">
-              <i class="ri-group-line text-gray-400"></i>
-              {{ car.capacity }}
+              <!-- <i class="ri-group-line text-gray-400"></i>
+              {{ car.capacity }} -->
             </div>
 
-            <p class="mt-3 text-gray-600">{{ car.description }}</p>
+            <!-- <p class="mt-3 text-gray-600 line-clamp-2">{{ car.description }}</p> -->
 
-            <p class="mt-4 text-[20px] font-bold text-[#C00000]">
-              Rp {{ formatPrice(car.price_per_day) }}
-              <span class="text-sm text-gray-500">/ hari</span>
-            </p>
+            <div
+              class="grid grid-cols-3 gap-2 mt-5 py-3 border-t border-b border-gray-100"
+            >
+              <div
+                class="flex flex-col items-center justify-center text-center"
+              >
+                <i class="ri-roadster-fill text-red-600 text-xl mb-1"></i>
+                <span
+                  class="text-[10px] font-medium text-gray-600 uppercase tracking-wide"
+                  >All in</span
+                >
+              </div>
+
+              <div
+                class="flex flex-col items-center justify-center text-center border-l border-gray-100"
+              >
+                <i class="ri-key-2-fill text-red-600 text-xl mb-1"></i>
+                <span
+                  class="text-[10px] font-medium text-gray-600 uppercase tracking-wide"
+                  >Lepas Kunci</span
+                >
+              </div>
+
+              <div
+                class="flex flex-col items-center justify-center text-center border-l border-gray-100"
+              >
+                <i class="ri-user-star-fill text-red-600 text-xl mb-1"></i>
+                <span
+                  class="text-[10px] font-medium text-gray-600 uppercase tracking-wide"
+                  >Plus Driver</span
+                >
+              </div>
+            </div>
+
+            <!-- <div class="mt-4">
+              <p class="text-[20px] font-bold text-[#C00000]">
+                Rp {{ formatPrice(car.price_per_day) }}
+                <span class="text-sm text-gray-500 font-normal">/ hari</span>
+              </p>
+            </div> -->
 
             <a
               :href="car.cta_whatsapp"
               target="_blank"
-              class="mt-5 block w-full py-2.5 text-center text-white font-medium rounded-xl bg-[#C00000] hover:bg-[#a80000] transition"
+              class="mt-auto pt-4 block w-full py-2.5 text-center text-white font-medium rounded-xl bg-[#C00000] hover:bg-[#a80000] transition flex items-center justify-center gap-2"
             >
+              <i class="ri-whatsapp-line text-lg"></i>
               Hubungi via WhatsApp
             </a>
           </div>
