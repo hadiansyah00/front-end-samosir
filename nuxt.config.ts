@@ -87,7 +87,7 @@ export default defineNuxtConfig({
           content: "https://samosirtour.id/og_image_samosirtour.png",
         },
         { property: "og:type", content: "website" },
-        { property: "og:url", content: "https://samosirtour.id" },
+        { property: "og:url", content: "https://samosirtour.webp" },
 
         // TWITTER
         { name: "twitter:card", content: "summary_large_image" },
@@ -99,7 +99,7 @@ export default defineNuxtConfig({
         },
         {
           name: "twitter:image",
-          content: "https://samosirtour.id/og_image_samosirtour.png",
+          content: "https://samosirtour.id/og_image_samosirtour.webp",
         },
       ],
 
