@@ -1,33 +1,28 @@
 <template>
   <main class="min-h-screen bg-white">
     <!-- HERO -->
-    <section class="relative h-[320px] md:h-[420px] w-full overflow-hidden">
+    <section class="w-full bg-gradient-to-r from-[#8B0000] to-[#D40000] py-20">
       <div
-        class="absolute inset-0 bg-cover bg-center"
-        :style="{ backgroundImage: `url(${headerImg})` }"
-      ></div>
-      <div class="absolute inset-0 bg-black/60"></div>
+        class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 items-center px-6"
+      >
+        <!-- LEFT -->
+        <div class="text-white">
+          <h1 class="text-4xl md:text-5xl font-bold leading-tight mb-4">
+            Artikel Samosir Tour
+          </h1>
+          <p class="text-lg text-white opacity-90 max-w-xl">
+            Informasi wisata, tips perjalanan, dan update terbaru seputar
+            Samosir.
+          </p>
+        </div>
 
-      <div class="relative z-10 flex items-center h-full">
-        <div class="px-6 md:px-16 lg:px-24 max-w-3xl">
-          <div
-            class="p-6 rounded-xl backdrop-blur-sm"
-            style="
-              background: linear-gradient(
-                to right,
-                rgba(0, 0, 0, 0.55),
-                rgba(0, 0, 0, 0)
-              );
-            "
-          >
-            <h1 class="text-4xl md:text-5xl font-bold text-white">
-              Artikel Samosir Tour
-            </h1>
-            <p class="mt-3 text-gray-200 text-lg">
-              Informasi wisata, tips perjalanan, dan update terbaru seputar
-              Samosir.
-            </p>
-          </div>
+        <!-- RIGHT: Random Image khusus halaman Artikel -->
+        <div>
+          <img
+            :src="articleHero"
+            alt="Artikel Hero"
+            class="w-full h-72 md:h-96 object-cover rounded-xl shadow-xl"
+          />
         </div>
       </div>
     </section>
@@ -195,4 +190,23 @@ onMounted(() => {
 
 // OUTPUT
 const articles = computed(() => articlesRaw.value);
+// Ambil gallery untuk random hero image (khusus halaman artikel)
+const { data: galleryData } = await useFetch(
+  `${apiUrl}/api/v1/home?include=gallerys`
+);
+import fallbackHero from "~/assets/img/backgrounds/samosir-bg.jpg";
+
+const galleries = galleryData.value?.data?.gallerys || [];
+
+// Random image khusus artikel
+const articleHero = computed(() => {
+  if (!galleries.length) return fallbackHero;
+
+  const randomIndex = Math.floor(Math.random() * galleries.length);
+  const random = galleries[randomIndex];
+
+  if (!random?.image) return fallbackHero;
+
+  return `${imageBaseUrl}/storage/${random.image}`;
+});
 </script>
