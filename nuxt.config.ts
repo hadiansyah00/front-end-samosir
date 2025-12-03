@@ -1,11 +1,9 @@
+// nuxt.config.ts
 import tailwindcss from "@tailwindcss/vite";
 
 export default defineNuxtConfig({
   devtools: { enabled: true },
 
-  // ========================================================
-  // GLOBAL CSS
-  // ========================================================
   css: [
     "~/assets/css/input.css",
     "~/assets/css/transitions.css",
@@ -13,9 +11,6 @@ export default defineNuxtConfig({
     "~/assets/css/nprogress.css",
   ],
 
-  // ========================================================
-  // IMAGE DOMAINS
-  // ========================================================
   image: {
     domains: ["apps.samosirtour.id"],
   },
@@ -24,31 +19,22 @@ export default defineNuxtConfig({
     plugins: [tailwindcss()],
   },
 
-  // ========================================================
-  // MODULES
-  // ========================================================
   modules: ["@pinia/nuxt", "nuxt-simple-sitemap"],
 
   pinia: {
     autoImports: ["defineStore", "storeToRefs"],
   },
 
-  // ========================================================
-  // 🔐 RUNTIME CONFIG — aman untuk public keys
-  // ========================================================
   runtimeConfig: {
     public: {
       apiUrl: process.env.NUXT_PUBLIC_API_URL,
       apiUrlBase: process.env.NUXT_PUBLIC_API_URL_BASE,
-
-      gaId: process.env.NUXT_PUBLIC_GA_ID, // G-27F5TW7S6G
+      gaId: process.env.NUXT_PUBLIC_GA_ID,
       googleMapsKey: process.env.NUXT_PUBLIC_GOOGLE_MAPS_KEY,
+      gtmId: "GTM-PJZ2BD9M",
     },
   },
 
-  // ========================================================
-  // 🌐 DEFAULT META (SEO + OG)
-  // ========================================================
   app: {
     head: {
       title: "Samosir Tour – Rental Mobil & Paket Wisata Samosir",
@@ -56,8 +42,6 @@ export default defineNuxtConfig({
 
       link: [
         { rel: "canonical", href: "https://samosirtour.id" },
-
-        // Performance Preconnect
         {
           rel: "preconnect",
           href: "https://fonts.gstatic.com",
@@ -73,8 +57,6 @@ export default defineNuxtConfig({
           content:
             "Samosir Tour menyediakan layanan rental mobil dan paket wisata Samosir & Danau Toba terbaik.",
         },
-
-        // OG TAGS
         { property: "og:site_name", content: "Samosir Tour" },
         { property: "og:title", content: "Samosir Tour" },
         {
@@ -84,10 +66,10 @@ export default defineNuxtConfig({
         },
         {
           property: "og:image",
-          content: "https://samosirtour.id/og_image_samosirtour.png",
+          content: "https://samosirtour.id/og_image_samosirtour.webp",
         },
         { property: "og:type", content: "website" },
-        { property: "og:url", content: "https://samosirtour.webp" },
+        { property: "og:url", content: "https://samosirtour.id" },
 
         // TWITTER
         { name: "twitter:card", content: "summary_large_image" },
@@ -103,11 +85,21 @@ export default defineNuxtConfig({
         },
       ],
 
-      // ========================================================
-      // 📊 GOOGLE ANALYTICS (Auto Inject)
-      // ========================================================
       script: [
-        // GA TAG
+        // ==========================================
+        // 🔵 GOOGLE TAG MANAGER
+        // ==========================================
+        {
+          children: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+            new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+            j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+            'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+            })(window,document,'script','dataLayer','GTM-PJZ2BD9M');`,
+        },
+
+        // ==========================================
+        // 🟣 GOOGLE ANALYTICS 4
+        // ==========================================
         {
           src: `https://www.googletagmanager.com/gtag/js?id=${process.env.NUXT_PUBLIC_GA_ID}`,
           async: true,
@@ -128,12 +120,20 @@ export default defineNuxtConfig({
           defer: true,
         },
       ],
+
+      // ==========================================
+      // 🔵 GTM NOSCRIPT
+      // ==========================================
+      noscript: [
+        {
+          children: `<iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PJZ2BD9M"
+            height="0" width="0" style="display:none;visibility:hidden"></iframe>`,
+          body: true,
+        },
+      ],
     },
   },
 
-  // ========================================================
-  // 🗺 SITEMAP
-  // ========================================================
   sitemap: {
     siteUrl: "https://samosirtour.id",
     autoLastmod: true,
@@ -148,34 +148,21 @@ export default defineNuxtConfig({
     ],
   },
 
-  // ========================================================
-  // 📡 DYNAMIC SITEMAP (Packages + Articles)
-  // ========================================================
   nitro: {
     hooks: {
       "sitemap:resolved": async (ctx) => {
-        // PACKAGES
         try {
           const res = await $fetch("https://samosirtour.id/api/v1/packages");
-          res?.forEach((p) => {
-            if (p.slug) ctx.urls.push(`/tour-packages/${p.slug}`);
-          });
-        } catch (e) {
-          console.error("Gagal fetch packages", e);
-        }
-
-        // ARTICLES
+          res?.forEach((p) => ctx.urls.push(`/tour-packages/${p.slug}`));
+        } catch {}
         try {
           const articleRes = await $fetch(
             "https://apps.samosirtour.id/api/v1/articles"
           );
-          const articles = articleRes?.data?.articles ?? [];
-          articles.forEach((a) => {
-            if (a.slug) ctx.urls.push(`/artikel/${a.slug}`);
-          });
-        } catch (e) {
-          console.error("Gagal fetch artikel", e);
-        }
+          articleRes?.data?.articles?.forEach((a) =>
+            ctx.urls.push(`/artikel/${a.slug}`)
+          );
+        } catch {}
       },
     },
   },
