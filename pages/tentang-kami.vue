@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from "vue";
+import AOS from "aos";
+import "aos/dist/aos.css";
+
 const config = useRuntimeConfig();
 
 // Base API
@@ -11,11 +14,10 @@ const loading = ref(true);
 const error = ref<string | null>(null);
 
 // =====================================================
-// FETCH DATA ABOUT (SESUAI STRUKTUR INDEX.VUE)
+// FETCH DATA ABOUT
 // =====================================================
-const { data: homeAbout, refresh: refreshAbout } = await useAsyncData(
-  "about-page",
-  () => $fetch(`${apiUrl}/home?include=abouts`)
+const { data: homeAbout } = await useAsyncData("about-page", () =>
+  $fetch(`${apiUrl}/home?include=abouts`)
 );
 
 // NORMALISASI DATA
@@ -35,20 +37,26 @@ const about = computed(() => {
   };
 });
 
-// HERO IMAGE
 const aboutImage = computed(() => about.value?.image || null);
 
-// PARSE DESCRIPTION → PARAGRAPH ARRAY
+// =====================================================
+// CKEDITOR DESCRIPTION → PARAGRAPH ARRAY
+// =====================================================
 const descriptionParagraphs = computed(() => {
-  if (!about.value?.description) return [];
-  return about.value.description
-    .replace(/\r\n/g, "\n")
-    .split("\n\n")
-    .map((p) => p.trim())
-    .filter((p) => p.length > 0);
+  const html = about.value?.description;
+  if (!html) return [];
+
+  const wrapper = document.createElement("div");
+  wrapper.innerHTML = html;
+
+  return Array.from(wrapper.querySelectorAll("p"))
+    .map((p) => p.innerHTML.trim())
+    .filter((x) => x.length > 0);
 });
 
-// MISSION LIST (Jika format mulai dari "-")
+// =====================================================
+// MISSION LIST → jika pakai "-"
+// =====================================================
 const missionAsList = computed(() => {
   if (!about.value?.mission) return [];
   return about.value.mission
@@ -58,15 +66,11 @@ const missionAsList = computed(() => {
     .map((item) => item.substring(1).trim());
 });
 
-// DEBUGGING
+// Debugging
 watch(
   () => homeAbout.value,
   (val) => {
-    console.log(
-      "%cABOUT API RESPONSE:",
-      "color:#C00000; font-weight:bold",
-      val
-    );
+    console.log("%cABOUT API RESPONSE:", "color:#C00000;font-weight:bold", val);
   },
   { deep: true }
 );
@@ -74,9 +78,6 @@ watch(
 // =====================================================
 // INIT AOS
 // =====================================================
-import AOS from "aos";
-import "aos/dist/aos.css";
-
 onMounted(() => {
   loading.value = false;
 
@@ -88,7 +89,6 @@ onMounted(() => {
   });
 });
 </script>
-
 <template>
   <main class="min-h-screen">
     <!-- HERO -->
@@ -97,7 +97,6 @@ onMounted(() => {
         v-if="aboutImage"
         class="h-[420px] md:h-[520px] lg:h-[580px] w-full bg-center bg-cover"
         :style="`background-image: url(${aboutImage});`"
-        aria-hidden="true"
       >
         <div
           class="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent"
@@ -106,10 +105,9 @@ onMounted(() => {
 
       <div
         v-else
-        class="w-full h-[420px] md:h-[520px] lg:h-[580px] flex items-center justify-center text-white shadow-lg bg-gradient-to-r from-[#C00000]/95 to-[#8B0000]/95"
+        class="w-full h-[420px] md:h-[520px] lg:h-[580px] flex items-center justify-center text-white bg-gradient-to-r from-[#C00000]/95 to-[#8B0000]/95"
       ></div>
 
-      <!-- overlay -->
       <div
         class="container mx-auto px-6 md:px-8 lg:px-12 absolute inset-0 pointer-events-none"
       >
@@ -125,15 +123,17 @@ onMounted(() => {
               {{ about?.title ?? "Tentang Kami" }}
             </h1>
 
-            <p
-              class="mt-4 text-sm md:text-base text-white max-w-2xl opacity-90"
-            >
-              {{ descriptionParagraphs[0] ?? "" }}
-            </p>
+            <!-- RENDER HTML CKEDITOR -->
+            <!-- <div
+              class="mt-4 prose prose-invert max-w-none"
+              v-html="about?.description"
+              data-aos="fade-up"
+              data-aos-delay="200"
+            ></div> -->
 
             <div class="mt-6 flex gap-3">
               <a
-                :href="`https://wa.me/628136000576`"
+                href="https://wa.me/628136000576"
                 class="inline-flex items-center gap-2 rounded-full px-5 py-3 font-medium shadow-lg bg-gradient-to-r from-[#C00000] to-[#8B0000]"
                 data-aos="zoom-in"
               >
@@ -143,7 +143,7 @@ onMounted(() => {
 
               <NuxtLink
                 to="/"
-                class="inline-flex items-center gap-2 rounded-full px-5 py-3 font-medium bg-white/90 text-gray-900"
+                class="inline-flex items-center gap-2 rounded-full px-5 py-3 font-medium bg-white/90 text-white shadow-lg hover:bg-white"
                 data-aos="zoom-in"
                 data-aos-delay="150"
               >
@@ -162,46 +162,38 @@ onMounted(() => {
         class="bg-white rounded-2xl shadow-xl overflow-hidden"
         data-aos="fade-up"
       >
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-0">
-          <!-- Image left -->
-          <div class="hidden lg:block lg:order-first" data-aos="fade-right">
+        <div class="grid grid-cols-1 lg:grid-cols-2">
+          <!-- Image -->
+          <div class="hidden lg:block" data-aos="fade-right">
             <img
               v-if="aboutImage"
               :src="aboutImage"
-              alt="Tentang Samosir Tour"
-              class="w-full h-full object-cover block"
-              loading="lazy"
+              class="w-full h-full object-cover"
             />
             <div
-              class="w-full h-full bg-gray-100 flex items-center justify-center"
               v-else
+              class="w-full h-full bg-gray-100 flex items-center justify-center"
             >
               <i class="ri-map-pin-line text-4xl text-gray-400"></i>
             </div>
           </div>
 
-          <!-- Text right -->
+          <!-- Text -->
           <div class="p-8 md:p-12 lg:p-16" data-aos="fade-left">
-            <h2 class="text-2xl md:text-3xl font-semibold text-gray-900">
+            <h2 class="text-2xl md:text-3xl font-semibold text-black">
               Siapa Kami
             </h2>
 
-            <div class="mt-4 space-y-4 text-gray-700">
-              <template v-if="descriptionParagraphs.length">
-                <p
-                  v-for="(p, idx) in descriptionParagraphs"
-                  :key="idx"
-                  class="leading-relaxed"
-                  data-aos="fade-up"
-                  :data-aos-delay="(idx + 1) * 80"
-                >
-                  {{ p }}
-                </p>
-              </template>
-            </div>
+            <!-- Render Deskripsi HTML -->
+            <div
+              class="mt-4 prose max-w-none text-black leading-relaxed"
+              v-html="about?.description"
+              data-aos="fade-up"
+            ></div>
 
             <!-- Vision & Mission -->
             <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-5">
+              <!-- Visi -->
               <div
                 class="p-5 rounded-xl shadow-md border border-gray-100"
                 data-aos="zoom-in"
@@ -224,6 +216,7 @@ onMounted(() => {
                 </div>
               </div>
 
+              <!-- Misi -->
               <div
                 class="p-5 rounded-xl shadow-md border border-gray-100"
                 data-aos="zoom-in"
@@ -235,52 +228,44 @@ onMounted(() => {
                   >
                     <i class="ri-list-check"></i>
                   </div>
+
                   <div class="flex-1">
                     <h3 class="text-lg font-semibold">Misi</h3>
 
-                    <div class="mt-2 text-sm text-gray-700">
-                      <ul
-                        v-if="missionAsList.length"
-                        class="list-none space-y-2"
+                    <!-- Bullet list -->
+                    <ul
+                      v-if="missionAsList.length"
+                      class="mt-2 list-none space-y-2"
+                    >
+                      <li
+                        v-for="(m, i) in missionAsList"
+                        :key="i"
+                        class="flex items-start gap-3"
+                        data-aos="fade-up"
+                        :data-aos-delay="(i + 1) * 100"
                       >
-                        <li
-                          v-for="(m, i) in missionAsList"
-                          :key="i"
-                          class="flex items-start gap-3"
-                          data-aos="fade-up"
-                          :data-aos-delay="(i + 1) * 100"
-                        >
-                          <span class="mt-1 text-[#C00000]"
-                            ><i class="ri-checkbox-circle-line"></i
-                          ></span>
-                          <span>{{ m }}</span>
-                        </li>
-                      </ul>
+                        <i
+                          class="ri-checkbox-circle-line text-[#C00000] mt-1"
+                        ></i>
+                        <span>{{ m }}</span>
+                      </li>
+                    </ul>
 
-                      <div v-else>
-                        <p
-                          v-if="about?.mission"
-                          v-for="(p, idx) in about.mission
-                            .replace(/\r\n/g, '\n')
-                            .split('\n\n')"
-                          :key="idx"
-                        >
-                          {{ p }}
-                        </p>
-                        <p v-else class="text-gray-500">
-                          Belum ada misi yang diatur.
-                        </p>
-                      </div>
-                    </div>
+                    <!-- Default paragraph -->
+                    <div
+                      v-else
+                      class="mt-2 text-sm text-gray-700"
+                      v-html="about?.mission"
+                    ></div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <!-- CTA small -->
+            <!-- CTA -->
             <div class="mt-8 flex flex-wrap gap-3" data-aos="fade-up">
               <a
-                :href="`https://wa.me/628136000576`"
+                href="https://wa.me/628136000576"
                 class="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium shadow bg-gradient-to-r from-[#C00000] to-[#8B0000] text-white"
               >
                 <i class="ri-whatsapp-line"></i>
@@ -300,7 +285,7 @@ onMounted(() => {
       </div>
     </section>
 
-    <!-- SMALL FOOTER CTA -->
+    <!-- FOOTER CTA -->
     <section class="container mx-auto px-6 md:px-8 lg:px-12 mt-12 mb-20">
       <div
         class="rounded-2xl overflow-hidden bg-gradient-to-r from-[#C00000]/95 to-[#8B0000]/95 text-white shadow-lg p-8 flex flex-col md:flex-row items-center justify-between gap-4"
@@ -314,16 +299,15 @@ onMounted(() => {
             Hubungi kami sekarang untuk paket tour yang sesuai kebutuhanmu.
           </p>
         </div>
-        <div class="flex items-center gap-3">
-          <a
-            :href="`https://wa.me/628136000576`"
-            class="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-white text-gray-900 font-semibold"
-            data-aos="fade-left"
-          >
-            <i class="ri-whatsapp-line"></i>
-            Hubungi via WhatsApp
-          </a>
-        </div>
+
+        <a
+          href="https://wa.me/628136000576"
+          class="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-white text-gray-900 font-semibold"
+          data-aos="fade-left"
+        >
+          <i class="ri-whatsapp-line"></i>
+          Hubungi via WhatsApp
+        </a>
       </div>
     </section>
   </main>
